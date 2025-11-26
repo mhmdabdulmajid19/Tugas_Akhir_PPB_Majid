@@ -123,9 +123,27 @@ export const getInitials = (name) => {
     .substring(0, 2);
 };
 
-// Check if user is admin
+// ============================================
+// ADMIN CHECK - HARDCODED EMAIL LIST
+// ============================================
+const ADMIN_EMAILS = [
+  'admin@mail.com',
+  'admin@almajidbatik.com',
+  // Tambahkan email admin lain di sini
+];
+
+/**
+ * Check if user is admin based on hardcoded email list
+ * @param {Object} user - Supabase user object
+ * @returns {boolean}
+ */
 export const isAdmin = (user) => {
-  return user?.user_metadata?.role === 'admin' || user?.email === 'admin@almajidbatik.com';
+  if (!user || !user.email) return false;
+  
+  // Check if email is in admin list (case-insensitive)
+  return ADMIN_EMAILS.some(
+    adminEmail => adminEmail.toLowerCase() === user.email.toLowerCase()
+  );
 };
 
 // Get user identifier (email or guest ID)

@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, Upload, Loader } from 'lucide-react';
-import { CATEGORIES, SIZES, MATERIALS, PATTERNS, COLORS } from '../../utils/constants';
+import { SIZES, MATERIALS, PATTERNS, COLORS } from '../../utils/constants';
 import { generateSKU } from '../../utils/helpers';
+import { supabase } from '../../config/api';
 
 const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) => {
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category_id: CATEGORIES.MENS.id,
+    category_id: '', // UUID dari database
     price: '',
     stock: '',
     sku: '',
@@ -21,6 +23,26 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
     is_available: true,
   });
 
+  // Fetch categories from database
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+      
+      if (data && !error) {
+        setCategories(data);
+        // Set default category jika belum ada
+        if (!formData.category_id && data.length > 0) {
+          setFormData(prev => ({ ...prev, category_id: data[0].id }));
+        }
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -31,7 +53,7 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
         colors: initialData.colors || [],
       });
     } else {
-      // Generate SKU for new product
+      // Generate SKU untuk produk baru
       const sku = generateSKU('BAT', 'NEW');
       setFormData(prev => ({ ...prev, sku }));
     }
@@ -47,8 +69,11 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
 
   const handleCategoryChange = (e) => {
     const categoryId = e.target.value;
-    const categoryName = Object.values(CATEGORIES).find(c => c.id === categoryId)?.name || 'NEW';
-    const newSKU = generateSKU(categoryId.substring(0, 3), formData.name || 'NEW');
+    const category = categories.find(c => c.id === categoryId);
+    const newSKU = generateSKU(
+      category?.slug.substring(0, 3).toUpperCase() || 'BAT', 
+      formData.name || 'NEW'
+    );
     
     setFormData({
       ...formData,
@@ -75,11 +100,19 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
     e.preventDefault();
     setLoading(true);
 
+    // Validasi category_id
+    if (!formData.category_id) {
+      alert('Kategori harus dipilih');
+      setLoading(false);
+      return;
+    }
+
     // Prepare data
     const submitData = {
       ...formData,
       price: parseFloat(formData.price),
       stock: parseInt(formData.stock),
+      category_id: formData.category_id, // Pastikan ini UUID
     };
 
     await onSubmit(submitData);
@@ -138,12 +171,12 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
               className="input"
               required
             >
-              <option value={CATEGORIES.MENS.id}>
-                {CATEGORIES.MENS.icon} {CATEGORIES.MENS.name}
-              </option>
-              <option value={CATEGORIES.WOMENS.id}>
-                {CATEGORIES.WOMENS.icon} {CATEGORIES.WOMENS.name}
-              </option>
+              <option value="">Pilih Kategori</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.icon} {category.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -261,8 +294,8 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
                   onClick={() => toggleSize(size)}
                   className={`px-4 py-2 rounded-lg border-2 font-medium transition-all ${
                     formData.sizes.includes(size)
-                      ? 'border-batik-brown bg-batik-brown text-white'
-                      : 'border-gray-300 hover:border-batik-brown'
+                      ? 'border-amber-700 bg-amber-700 text-white'
+                      : 'border-gray-300 hover:border-amber-700'
                   }`}
                 >
                   {size}
@@ -284,8 +317,8 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
                   onClick={() => toggleColor(color.name)}
                   className={`px-4 py-2 rounded-lg border-2 font-medium transition-all ${
                     formData.colors.includes(color.name)
-                      ? 'border-batik-brown bg-batik-brown text-white'
-                      : 'border-gray-300 hover:border-batik-brown'
+                      ? 'border-amber-700 bg-amber-700 text-white'
+                      : 'border-gray-300 hover:border-amber-700'
                   }`}
                 >
                   <div className="flex items-center space-x-2">
@@ -353,7 +386,7 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
               name="is_featured"
               checked={formData.is_featured}
               onChange={handleChange}
-              className="w-5 h-5 text-batik-brown focus:ring-batik-brown rounded"
+              className="w-5 h-5 text-amber-700 focus:ring-amber-700 rounded"
             />
             <div>
               <span className="font-medium text-gray-900">Produk Unggulan</span>
@@ -367,7 +400,7 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
               name="is_available"
               checked={formData.is_available}
               onChange={handleChange}
-              className="w-5 h-5 text-batik-brown focus:ring-batik-brown rounded"
+              className="w-5 h-5 text-amber-700 focus:ring-amber-700 rounded"
             />
             <div>
               <span className="font-medium text-gray-900">Produk Tersedia</span>

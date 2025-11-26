@@ -10,17 +10,17 @@ export const USER_ROLES = {
 };
 
 // Product Categories
+// CATATAN: id akan di-generate otomatis sebagai UUID oleh database
+// Gunakan slug untuk filter di frontend
 export const CATEGORIES = {
   MENS: {
-    id: 'mens-clothing',
-    name: "Men's Clothing",
     slug: 'mens-clothing',
+    name: "Men's Clothing",
     icon: '👔',
   },
   WOMENS: {
-    id: 'womens-clothing',
-    name: "Women's Clothing",
     slug: 'womens-clothing',
+    name: "Women's Clothing",
     icon: '👗',
   },
 };
@@ -83,4 +83,8 @@ export const SORT_OPTIONS = [
   { label: 'Rating Tertinggi', value: 'rating_desc' },
 ];
 
-export const DEFAULT_ADMIN_EMAIL = 'admin@almajidbatik.com';
+// Admin Email List (HARDCODED)
+export const ADMIN_EMAILS = [
+  'admin@mail.com',
+  'admin@almajidbatik.com',
+];
