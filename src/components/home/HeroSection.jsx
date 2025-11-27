@@ -1,8 +1,12 @@
-import { useNavigate } from 'react-router-dom';
 import { ShoppingBag, Sparkles } from 'lucide-react';
 
 const HeroSection = () => {
-  const navigate = useNavigate();
+  const scrollToSection = (sectionId) => {
+    document.getElementById(sectionId)?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
 
   return (
     <section className="relative bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 overflow-hidden">
@@ -42,17 +46,17 @@ const HeroSection = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
               <button
-                onClick={() => navigate('/mens-clothing')}
+                onClick={() => scrollToSection('featured-products')}
                 className="btn btn-primary py-3 px-8 text-lg flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
               >
                 <ShoppingBag className="w-5 h-5" />
-                <span>Lihat Koleksi</span>
+                <span>Lihat Produk Unggulan</span>
               </button>
               <button
-                onClick={() => navigate('/womens-clothing')}
-                className="btn btn-secondary py-3 px-8 text-lg"
+                onClick={() => scrollToSection('category-section')}
+                className="btn btn-primary py-3 px-8 text-lg flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
               >
-                Batik Wanita
+                <span>Jelajahi Kategori</span>
               </button>
             </div>
 

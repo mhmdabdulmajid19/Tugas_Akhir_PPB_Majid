@@ -1,9 +1,9 @@
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import ProductCard from '../common/ProductCard';
 import { ArrowRight } from 'lucide-react';
 
 const FeaturedProducts = ({ products }) => {
-  const navigate = useNavigate();
+  const [showAll, setShowAll] = useState(false);
 
   if (!products || products.length === 0) {
     return (
@@ -15,35 +15,34 @@ const FeaturedProducts = ({ products }) => {
         <p className="text-gray-500 mb-6">
           Produk unggulan akan ditampilkan di sini
         </p>
-        <button
-          onClick={() => navigate('/mens-clothing')}
-          className="btn btn-primary"
-        >
-          Lihat Semua Produk
-        </button>
       </div>
     );
   }
+
+  // Show first 6 products by default, all when showAll is true
+  const displayedProducts = showAll ? products : products.slice(0, 6);
 
   return (
     <div className="space-y-8">
       {/* Products Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
+        {displayedProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
 
-      {/* View All Button */}
-      <div className="text-center">
-        <button
-          onClick={() => navigate('/mens-clothing')}
-          className="inline-flex items-center space-x-2 px-8 py-3 bg-white border-2 border-batik-brown text-batik-brown rounded-xl font-semibold hover:bg-batik-brown hover:text-white transition-all duration-300 shadow-md hover:shadow-xl group"
-        >
-          <span>Lihat Semua Produk</span>
-          <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-        </button>
-      </div>
+      {/* View All/Less Button */}
+      {products.length > 6 && (
+        <div className="text-center">
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="inline-flex items-center space-x-2 px-8 py-3 bg-white border-2 border-batik-brown text-batik-brown rounded-xl font-semibold hover:bg-batik-brown hover:text-white transition-all duration-300 shadow-md hover:shadow-xl group"
+          >
+            <span>{showAll ? 'Tampilkan Lebih Sedikit' : 'Lihat Semua Produk Unggulan'}</span>
+            <ArrowRight className={`w-5 h-5 group-hover:translate-x-2 transition-transform ${showAll ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+      )}
 
       {/* Decorative Element */}
       <div className="relative py-8">

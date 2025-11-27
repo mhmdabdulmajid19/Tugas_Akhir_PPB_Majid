@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, Upload, Loader } from 'lucide-react';
+import { Plus, X, Upload, Loader, Image as ImageIcon } from 'lucide-react';
 import { SIZES, MATERIALS, PATTERNS, COLORS } from '../../utils/constants';
 import { generateSKU } from '../../utils/helpers';
 import { supabase } from '../../config/api';
 
 const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) => {
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category_id: '', // UUID dari database
+    category_id: '',
     price: '',
     stock: '',
     sku: '',
@@ -33,7 +34,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
       
       if (data && !error) {
         setCategories(data);
-        // Set default category jika belum ada
         if (!formData.category_id && data.length > 0) {
           setFormData(prev => ({ ...prev, category_id: data[0].id }));
         }
@@ -53,7 +53,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
         colors: initialData.colors || [],
       });
     } else {
-      // Generate SKU untuk produk baru
       const sku = generateSKU('BAT', 'NEW');
       setFormData(prev => ({ ...prev, sku }));
     }
@@ -96,23 +95,96 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
     setFormData({ ...formData, colors });
   };
 
+  // Upload image to Supabase Storage
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert('Format file tidak didukung. Gunakan JPG, PNG, atau WEBP');
+      return;
+    }
+
+    if (file.size > maxSize) {
+      alert('Ukuran file maksimal 5MB');
+      return;
+    }
+
+    try {
+      setUploading(true);
+
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `products/${fileName}`;
+
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) throw error;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      if (urlData?.publicUrl) {
+        setFormData(prev => ({ ...prev, image_url: urlData.publicUrl }));
+        alert('Gambar berhasil diupload!');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Gagal mengupload gambar: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Remove uploaded image
+  const handleRemoveImage = async () => {
+    if (!formData.image_url) return;
+
+    try {
+      // Extract file path from URL
+      const url = new URL(formData.image_url);
+      const pathParts = url.pathname.split('/');
+      const filePath = pathParts.slice(pathParts.indexOf('products')).join('/');
+
+      // Delete from storage
+      await supabase.storage
+        .from('product-images')
+        .remove([filePath]);
+
+      setFormData(prev => ({ ...prev, image_url: '' }));
+    } catch (error) {
+      console.error('Error removing image:', error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Validasi category_id
     if (!formData.category_id) {
       alert('Kategori harus dipilih');
       setLoading(false);
       return;
     }
 
-    // Prepare data
     const submitData = {
       ...formData,
       price: parseFloat(formData.price),
       stock: parseInt(formData.stock),
-      category_id: formData.category_id, // Pastikan ini UUID
+      category_id: formData.category_id,
     };
 
     await onSubmit(submitData);
@@ -335,43 +407,90 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
         </div>
       </div>
 
-      {/* Image */}
+      {/* Image Upload */}
       <div className="bg-white rounded-xl shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4">Gambar Produk</h3>
         
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            URL Gambar
-          </label>
-          <input
-            type="url"
-            name="image_url"
-            value={formData.image_url}
-            onChange={handleChange}
-            className="input"
-            placeholder="https://example.com/image.jpg"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Masukkan URL gambar produk (sementara manual, fitur upload akan ditambahkan)
-          </p>
-          
-          {/* Image Preview */}
-          {formData.image_url && (
-            <div className="mt-4">
-              <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
-              <div className="w-48 h-48 rounded-lg overflow-hidden border">
-                <img
-                  src={formData.image_url}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.src = '';
-                    e.target.style.display = 'none';
-                  }}
+        <div className="space-y-4">
+          {/* Upload Button */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Upload Gambar <span className="text-red-500">*</span>
+            </label>
+            
+            {!formData.image_url ? (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-batik-brown transition-colors">
+                <input
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="image-upload"
+                  disabled={uploading}
                 />
+                <label
+                  htmlFor="image-upload"
+                  className="cursor-pointer flex flex-col items-center space-y-3"
+                >
+                  {uploading ? (
+                    <>
+                      <Loader className="w-12 h-12 text-batik-brown animate-spin" />
+                      <p className="text-sm text-gray-600">Mengupload gambar...</p>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-12 h-12 text-gray-400" />
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-gray-700">
+                          Klik untuk upload gambar
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          JPG, PNG, atau WEBP (Max. 5MB)
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </label>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="relative">
+                <div className="border-2 border-gray-200 rounded-lg overflow-hidden">
+                  <img
+                    src={formData.image_url}
+                    alt="Product preview"
+                    className="w-full h-64 object-cover"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+            
+            <p className="text-xs text-gray-500 mt-2">
+              Gambar akan disimpan di Supabase Storage
+            </p>
+          </div>
+
+          {/* Manual URL Input (Optional) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Atau Masukkan URL Gambar (Opsional)
+            </label>
+            <input
+              type="url"
+              name="image_url"
+              value={formData.image_url}
+              onChange={handleChange}
+              className="input"
+              placeholder="https://example.com/image.jpg"
+              disabled={uploading}
+            />
+          </div>
         </div>
       </div>
 
@@ -416,12 +535,13 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
           type="button"
           onClick={() => window.history.back()}
           className="btn btn-secondary px-8"
+          disabled={loading || uploading}
         >
           Batal
         </button>
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || uploading || !formData.image_url}
           className="btn btn-primary px-8 flex items-center space-x-2 disabled:opacity-50"
         >
           {loading ? (

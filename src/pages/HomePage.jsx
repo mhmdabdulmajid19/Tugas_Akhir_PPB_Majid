@@ -12,7 +12,8 @@ const HomePage = () => {
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       setLoading(true);
-      const { data } = await getProducts({ is_featured: true, limit: 6 });
+      // Fetch lebih banyak produk unggulan untuk fitur "Lihat Semua"
+      const { data } = await getProducts({ is_featured: true, limit: 50 });
       if (data) {
         setFeaturedProducts(data);
       }
@@ -28,10 +29,12 @@ const HomePage = () => {
       <HeroSection />
 
       {/* Category Section */}
-      <CategorySection />
+      <div id="category-section">
+        <CategorySection />
+      </div>
 
       {/* Featured Products */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <section id="featured-products" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
             Produk Unggulan
