@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, User, Eye } from 'lucide-react';
+import { ShieldCheck, User } from 'lucide-react';
 import { APP_NAME } from '../../utils/constants';
 
 const RoleSelector = ({ onSelectRole }) => {
@@ -22,22 +22,10 @@ const RoleSelector = ({ onSelectRole }) => {
       color: 'from-batik-brown to-batik-gold',
       iconColor: 'text-batik-brown',
     },
-    {
-      id: 'guest',
-      title: 'Guest',
-      description: 'Lihat katalog tanpa login',
-      icon: Eye,
-      color: 'from-gray-500 to-gray-600',
-      iconColor: 'text-gray-600',
-    },
   ];
 
   const handleRoleClick = (roleId) => {
-    if (roleId === 'guest') {
-      navigate('/home');
-    } else {
-      onSelectRole(roleId);
-    }
+    onSelectRole(roleId);
   };
 
   return (

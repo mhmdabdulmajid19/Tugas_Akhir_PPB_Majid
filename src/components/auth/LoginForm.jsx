@@ -191,32 +191,36 @@ const LoginForm = ({ role }) => {
         </button>
       </form>
 
-      {/* Toggle Login/Register */}
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
-          {isLogin ? 'Belum punya akun?' : 'Sudah punya akun?'}{' '}
-          <button
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setError('');
-            }}
-            className="text-batik-brown font-medium hover:underline"
-          >
-            {isLogin ? 'Daftar sekarang' : 'Masuk di sini'}
-          </button>
-        </p>
-      </div>
+      {/* Toggle Login/Register - Hanya untuk User, bukan Admin */}
+      {role !== 'admin' && (
+        <>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              {isLogin ? 'Belum punya akun?' : 'Sudah punya akun?'}{' '}
+              <button
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError('');
+                }}
+                className="text-batik-brown font-medium hover:underline"
+              >
+                {isLogin ? 'Daftar sekarang' : 'Masuk di sini'}
+              </button>
+            </p>
+          </div>
 
-      {/* Guest Option */}
-      {isLogin && (
-        <div className="mt-4 text-center">
-          <button
-            onClick={() => navigate('/home')}
-            className="text-sm text-gray-500 hover:text-batik-brown"
-          >
-            Lanjutkan sebagai Guest →
-          </button>
-        </div>
+          {/* Guest Option - Hanya muncul saat login dan bukan admin */}
+          {isLogin && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => navigate('/home')}
+                className="text-sm text-gray-500 hover:text-batik-brown"
+              >
+                Ingin melihat katalog dulu? <span className="font-medium">Lanjutkan sebagai Guest</span> →
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

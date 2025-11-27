@@ -26,14 +26,16 @@ const AuthPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
-        {/* Back Button */}
-        <button
-          onClick={handleBack}
-          className="mb-6 flex items-center space-x-2 text-gray-600 hover:text-batik-brown transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Kembali</span>
-        </button>
+        {/* Back Button - Hanya tampil saat sudah pilih role */}
+        {!showRoleSelector && (
+          <button
+            onClick={handleBack}
+            className="mb-6 flex items-center space-x-2 text-gray-600 hover:text-batik-brown transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Kembali</span>
+          </button>
+        )}
 
         {/* Card Container */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
