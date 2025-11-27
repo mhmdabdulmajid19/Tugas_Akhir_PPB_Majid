@@ -18,7 +18,7 @@ const WomensClothingPage = () => {
     setLoading(true);
     
     const queryFilters = {
-      category_id: CATEGORIES.WOMENS.id,
+      category_slug: CATEGORIES.WOMENS.slug, // Gunakan slug, bukan id
       search: searchTerm,
       sort: sortBy,
       ...filters,

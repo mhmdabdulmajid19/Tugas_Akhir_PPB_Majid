@@ -10,8 +10,7 @@ export const USER_ROLES = {
 };
 
 // Product Categories
-// CATATAN: id akan di-generate otomatis sebagai UUID oleh database
-// Gunakan slug untuk filter di frontend
+// CATATAN: Gunakan getCategoryId() untuk mendapatkan UUID dari database
 export const CATEGORIES = {
   MENS: {
     slug: 'mens-clothing',
@@ -23,6 +22,11 @@ export const CATEGORIES = {
     name: "Women's Clothing",
     icon: '👗',
   },
+};
+
+// Helper function to get category ID from slug (use this in components)
+export const getCategorySlug = (categoryKey) => {
+  return CATEGORIES[categoryKey]?.slug || null;
 };
 
 // Product Sizes

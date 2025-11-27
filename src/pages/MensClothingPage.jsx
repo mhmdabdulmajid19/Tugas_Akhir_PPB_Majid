@@ -18,7 +18,7 @@ const MensClothingPage = () => {
     setLoading(true);
     
     const queryFilters = {
-      category_id: CATEGORIES.MENS.id,
+      category_slug: CATEGORIES.MENS.slug, // Gunakan slug, bukan id
       search: searchTerm,
       sort: sortBy,
       ...filters,
