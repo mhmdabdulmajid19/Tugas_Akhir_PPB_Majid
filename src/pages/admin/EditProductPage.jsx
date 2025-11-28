@@ -50,9 +50,9 @@ const EditProductPage = () => {
 
   if (!product) {
     return (
-      <div className="text-center py-20">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Produk Tidak Ditemukan</h2>
-        <button onClick={() => navigate('/admin')} className="btn btn-primary">
+      <div className="text-center py-20 px-4">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Produk Tidak Ditemukan</h2>
+        <button onClick={() => navigate('/admin')} className="btn btn-primary w-full sm:w-auto">
           Kembali ke Dashboard
         </button>
       </div>
@@ -61,17 +61,19 @@ const EditProductPage = () => {
 
   return (
     <div>
+      {/* Back Button - Responsive */}
       <button
         onClick={() => navigate('/admin')}
-        className="flex items-center space-x-2 text-gray-600 hover:text-batik-brown mb-6"
+        className="flex items-center space-x-2 text-gray-600 hover:text-batik-brown mb-4 sm:mb-6 p-2 -ml-2"
       >
         <ArrowLeft className="w-5 h-5" />
-        <span>Kembali ke Dashboard</span>
+        <span className="text-sm sm:text-base">Kembali ke Dashboard</span>
       </button>
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">✏️ Edit Produk</h1>
-        <p className="text-gray-600">Update informasi produk: {product.name}</p>
+      {/* Header - Responsive */}
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">✏️ Edit Produk</h1>
+        <p className="text-sm sm:text-base text-gray-600 break-words">Update informasi produk: {product.name}</p>
       </div>
 
       <ProductForm 

@@ -180,10 +180,10 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
       {/* Basic Info */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h3 className="text-lg font-semibold mb-4">Informasi Dasar</h3>
+      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold mb-4">Informasi Dasar</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
@@ -255,10 +255,10 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
       </div>
 
       {/* Pricing & Stock */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h3 className="text-lg font-semibold mb-4">Harga & Stok</h3>
+      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold mb-4">Harga & Stok</h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Harga (Rp) <span className="text-red-500">*</span>
@@ -295,8 +295,8 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
       </div>
 
       {/* Product Details */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h3 className="text-lg font-semibold mb-4">Detail Produk</h3>
+      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold mb-4">Detail Produk</h3>
         
         <div className="space-y-4">
           <div>
@@ -337,13 +337,13 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Ukuran Tersedia
             </label>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-4 sm:flex sm:flex-wrap gap-2">
               {SIZES.map(size => (
                 <button
                   key={size}
                   type="button"
                   onClick={() => toggleSize(size)}
-                  className={`px-4 py-2 rounded-lg border-2 font-medium transition-all ${
+                  className={`px-3 py-2 rounded-lg border-2 font-medium transition-all text-sm ${
                     formData.sizes.includes(size)
                       ? 'border-amber-700 bg-amber-700 text-white'
                       : 'border-gray-300 hover:border-amber-700'
@@ -358,8 +358,8 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
       </div>
 
       {/* Image Upload */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h3 className="text-lg font-semibold mb-4">Gambar Produk</h3>
+      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold mb-4">Gambar Produk</h3>
         
         <div className="space-y-4">
           <div>
@@ -368,7 +368,7 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
             </label>
             
             {!formData.image_url ? (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-batik-brown transition-colors">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center hover:border-batik-brown transition-colors">
                 <input
                   type="file"
                   accept="image/jpeg,image/jpg,image/png,image/webp"
@@ -383,12 +383,12 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
                 >
                   {uploading ? (
                     <>
-                      <Loader className="w-12 h-12 text-batik-brown animate-spin" />
+                      <Loader className="w-10 sm:w-12 h-10 sm:h-12 text-batik-brown animate-spin" />
                       <p className="text-sm text-gray-600">Mengupload gambar...</p>
                     </>
                   ) : (
                     <>
-                      <Upload className="w-12 h-12 text-gray-400" />
+                      <Upload className="w-10 sm:w-12 h-10 sm:h-12 text-gray-400" />
                       <div className="space-y-1">
                         <p className="text-sm font-medium text-gray-700">
                           Klik untuk upload gambar
@@ -407,7 +407,7 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
                   <img
                     src={formData.image_url}
                     alt="Product preview"
-                    className="w-full h-64 object-cover"
+                    className="w-full h-48 sm:h-64 object-cover"
                   />
                 </div>
                 <button
@@ -443,64 +443,66 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
       </div>
 
       {/* Settings */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h3 className="text-lg font-semibold mb-4">Pengaturan</h3>
+      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold mb-4">Pengaturan</h3>
         
-        <div className="space-y-3">
-          <label className="flex items-center space-x-3 cursor-pointer">
+        <div className="space-y-4">
+          <label className="flex items-start space-x-3 cursor-pointer">
             <input
               type="checkbox"
               name="is_featured"
               checked={formData.is_featured}
               onChange={handleChange}
-              className="w-5 h-5 text-amber-700 focus:ring-amber-700 rounded"
+              className="w-5 h-5 text-amber-700 focus:ring-amber-700 rounded mt-0.5 flex-shrink-0"
             />
             <div>
-              <span className="font-medium text-gray-900">Produk Unggulan</span>
+              <span className="font-medium text-gray-900 block">Produk Unggulan</span>
               <p className="text-sm text-gray-500">Tampilkan di halaman utama</p>
             </div>
           </label>
 
-          <label className="flex items-center space-x-3 cursor-pointer">
+          <label className="flex items-start space-x-3 cursor-pointer">
             <input
               type="checkbox"
               name="is_available"
               checked={formData.is_available}
               onChange={handleChange}
-              className="w-5 h-5 text-amber-700 focus:ring-amber-700 rounded"
+              className="w-5 h-5 text-amber-700 focus:ring-amber-700 rounded mt-0.5 flex-shrink-0"
             />
             <div>
-              <span className="font-medium text-gray-900">Produk Tersedia</span>
+              <span className="font-medium text-gray-900 block">Produk Tersedia</span>
               <p className="text-sm text-gray-500">Tampilkan produk di katalog</p>
             </div>
           </label>
         </div>
       </div>
 
-      {/* Submit Button */}
-      <div className="flex justify-end space-x-4">
-        <button
-          type="button"
-          onClick={() => window.history.back()}
-          className="btn btn-secondary px-8"
-          disabled={loading || uploading}
-        >
-          Batal
-        </button>
-        <button
-          type="submit"
-          disabled={loading || uploading || !formData.image_url}
-          className="btn btn-primary px-8 flex items-center space-x-2 disabled:opacity-50"
-        >
-          {loading ? (
-            <>
-              <Loader className="w-5 h-5 animate-spin" />
-              <span>Menyimpan...</span>
-            </>
-          ) : (
-            <span>{submitLabel}</span>
-          )}
-        </button>
+      {/* Submit Button - Fixed on Mobile */}
+      <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 sm:relative sm:border-0 sm:bg-transparent sm:p-0 -mx-4 sm:mx-0">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 sm:space-x-4">
+          <button
+            type="button"
+            onClick={() => window.history.back()}
+            className="btn btn-secondary px-6 py-3 sm:px-8 order-2 sm:order-1"
+            disabled={loading || uploading}
+          >
+            Batal
+          </button>
+          <button
+            type="submit"
+            disabled={loading || uploading || !formData.image_url}
+            className="btn btn-primary px-6 py-3 sm:px-8 flex items-center justify-center space-x-2 disabled:opacity-50 order-1 sm:order-2"
+          >
+            {loading ? (
+              <>
+                <Loader className="w-5 h-5 animate-spin" />
+                <span>Menyimpan...</span>
+              </>
+            ) : (
+              <span>{submitLabel}</span>
+            )}
+          </button>
+        </div>
       </div>
     </form>
   );

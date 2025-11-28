@@ -22,17 +22,19 @@ const CreateProductPage = () => {
 
   return (
     <div>
+      {/* Back Button - Responsive */}
       <button
         onClick={() => navigate('/admin')}
-        className="flex items-center space-x-2 text-gray-600 hover:text-batik-brown mb-6"
+        className="flex items-center space-x-2 text-gray-600 hover:text-batik-brown mb-4 sm:mb-6 p-2 -ml-2"
       >
         <ArrowLeft className="w-5 h-5" />
-        <span>Kembali ke Dashboard</span>
+        <span className="text-sm sm:text-base">Kembali ke Dashboard</span>
       </button>
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">➕ Tambah Produk Baru</h1>
-        <p className="text-gray-600">Lengkapi form di bawah untuk menambahkan produk batik</p>
+      {/* Header - Responsive */}
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">➕ Tambah Produk Baru</h1>
+        <p className="text-sm sm:text-base text-gray-600">Lengkapi form di bawah untuk menambahkan produk batik</p>
       </div>
 
       <ProductForm onSubmit={handleSubmit} submitLabel="Tambah Produk" />

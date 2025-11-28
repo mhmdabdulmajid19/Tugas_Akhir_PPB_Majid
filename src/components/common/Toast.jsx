@@ -1,17 +1,7 @@
 // src/components/common/Toast.jsx
-import { useEffect } from 'react';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 
-const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {
-  useEffect(() => {
-    if (duration > 0) {
-      const timer = setTimeout(() => {
-        onClose();
-      }, duration);
-      return () => clearTimeout(timer);
-    }
-  }, [duration, onClose]);
-
+const Toast = ({ message, type = 'success', onClose }) => {
   const types = {
     success: {
       icon: CheckCircle,
@@ -48,14 +38,24 @@ const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 min-w-[300px] max-w-md ${config.bg} ${config.border} border-2 rounded-xl shadow-lg p-4 animate-fade-in`}
+      className={`
+        min-w-[300px] max-w-md 
+        ${config.bg} ${config.border} 
+        border-2 rounded-xl shadow-lg p-4 
+        animate-fade-in
+        transition-all duration-300 ease-in-out
+      `}
+      role="alert"
     >
       <div className="flex items-start space-x-3">
         <Icon className={`w-5 h-5 ${config.iconColor} flex-shrink-0 mt-0.5`} />
-        <p className={`flex-1 text-sm font-medium ${config.text}`}>{message}</p>
+        <p className={`flex-1 text-sm font-medium ${config.text} leading-relaxed`}>
+          {message}
+        </p>
         <button
           onClick={onClose}
           className={`${config.text} hover:opacity-70 transition-opacity flex-shrink-0`}
+          aria-label="Close notification"
         >
           <X className="w-5 h-5" />
         </button>

@@ -8,10 +8,17 @@ export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
   const showToast = (message, type = 'success', duration = 3000) => {
-    const id = Date.now();
+    const id = Date.now() + Math.random(); // Lebih unique
     const newToast = { id, message, type, duration };
     
     setToasts((prev) => [...prev, newToast]);
+    
+    // Auto remove toast after duration
+    if (duration > 0) {
+      setTimeout(() => {
+        hideToast(id);
+      }, duration);
+    }
   };
 
   const hideToast = (id) => {
@@ -19,17 +26,19 @@ export const ToastProvider = ({ children }) => {
   };
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={{ showToast, hideToast }}>
       {children}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
+      {/* Toast Container - Fixed positioning */}
+      <div className="fixed top-4 right-4 z-[9999] space-y-2 pointer-events-none">
         {toasts.map((toast) => (
-          <Toast
-            key={toast.id}
-            message={toast.message}
-            type={toast.type}
-            duration={toast.duration}
-            onClose={() => hideToast(toast.id)}
-          />
+          <div key={toast.id} className="pointer-events-auto">
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              duration={0} // Duration handled by ToastContext
+              onClose={() => hideToast(toast.id)}
+            />
+          </div>
         ))}
       </div>
     </ToastContext.Provider>
