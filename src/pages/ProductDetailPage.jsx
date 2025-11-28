@@ -1,23 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Star, ShoppingBag, Heart, Loader, Share2 } from 'lucide-react';
+import { ArrowLeft, Star, Heart, Loader, Share2, MessageCircle } from 'lucide-react';
 import { getProductById } from '../services/productService';
 import { getProductReviews } from '../services/reviewService';
 import { formatCurrency } from '../utils/helpers';
 import FavoriteButton from '../components/common/FavoriteButton';
 import ProductReviews from '../components/product/ProductReviews';
 import RelatedProducts from '../components/product/RelatedProducts';
+import { useToast } from '../contexts/ToastContext';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
-  const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
@@ -29,12 +30,9 @@ const ProductDetailPage = () => {
       if (productData) {
         setProduct(productData);
         
-        // Set default selections
+        // Set default size
         if (productData.sizes && productData.sizes.length > 0) {
           setSelectedSize(productData.sizes[0]);
-        }
-        if (productData.colors && productData.colors.length > 0) {
-          setSelectedColor(productData.colors[0]);
         }
       }
       
@@ -50,18 +48,36 @@ const ProductDetailPage = () => {
     fetchProductData();
   }, [id]);
 
-  const handleShare = () => {
+  const handleShare = async () => {
     if (navigator.share) {
-      navigator.share({
-        title: product?.name,
-        text: product?.description,
-        url: window.location.href,
-      });
+      try {
+        await navigator.share({
+          title: product?.name,
+          text: product?.description,
+          url: window.location.href,
+        });
+      } catch (err) {
+        // User cancelled share
+      }
     } else {
       // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
-      alert('Link berhasil disalin!');
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        showToast('✅ Link berhasil disalin!', 'success');
+      } catch (err) {
+        showToast('Gagal menyalin link', 'error');
+      }
     }
+  };
+
+  const handleWhatsAppOrder = () => {
+    if (!product) return;
+
+    const phoneNumber = '6289647758245'; // Format internasional (62 = Indonesia)
+    const message = `Halo, saya tertarik dengan produk:\n\n*${product.name}*\nSKU: ${product.sku}\nHarga: ${formatCurrency(product.price)}\n${selectedSize ? `Ukuran: ${selectedSize}` : ''}\nJumlah: ${quantity}\n\nApakah produk ini masih tersedia?`;
+    
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   if (loading) {
@@ -86,10 +102,10 @@ const ProductDetailPage = () => {
     );
   }
 
-  // Parse images array
-  const images = product.images ? 
-    (Array.isArray(product.images) ? product.images : [product.image_url]) :
-    [product.image_url];
+  // Parse images array - prioritas image_url jika images kosong
+  const images = product.images && Array.isArray(product.images) && product.images.length > 0
+    ? product.images 
+    : (product.image_url ? [product.image_url] : []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -112,11 +128,23 @@ const ProductDetailPage = () => {
           <div className="space-y-4">
             {/* Main Image */}
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-lg">
-              {images[selectedImage] ? (
+              {images.length > 0 && images[selectedImage] ? (
                 <img
                   src={images[selectedImage]}
                   alt={product.name}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback jika gambar gagal load
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = `
+                      <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-100 to-orange-100">
+                        <div class="text-center">
+                          <span class="text-8xl">👔</span>
+                          <p class="text-lg text-gray-500 mt-4">Batik</p>
+                        </div>
+                      </div>
+                    `;
+                  }}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-100 to-orange-100">
@@ -167,7 +195,19 @@ const ProductDetailPage = () => {
                     }`}
                   >
                     {img ? (
-                      <img src={img} alt={`${product.name} ${index + 1}`} className="w-full h-full object-cover" />
+                      <img 
+                        src={img} 
+                        alt={`${product.name} ${index + 1}`} 
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = `
+                            <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                              <span class="text-2xl">👔</span>
+                            </div>
+                          `;
+                        }}
+                      />
                     ) : (
                       <div className="w-full h-full bg-gray-100 flex items-center justify-center">
                         <span className="text-2xl">👔</span>
@@ -271,28 +311,6 @@ const ProductDetailPage = () => {
               </div>
             )}
 
-            {/* Color Selection */}
-            {product.colors && product.colors.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Pilih Warna</h3>
-                <div className="flex flex-wrap gap-2">
-                  {product.colors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`px-6 py-2 rounded-lg border-2 font-medium transition-all ${
-                        selectedColor === color
-                          ? 'border-batik-brown bg-batik-brown text-white'
-                          : 'border-gray-300 hover:border-batik-brown'
-                      }`}
-                    >
-                      {color}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Quantity */}
             <div>
               <h3 className="text-lg font-semibold mb-3">Jumlah</h3>
@@ -314,15 +332,23 @@ const ProductDetailPage = () => {
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* WhatsApp Order Button */}
             <div className="flex gap-4 pt-6">
               <button
+                onClick={handleWhatsAppOrder}
                 disabled={product.stock <= 0}
-                className="flex-1 btn btn-primary py-4 text-lg font-semibold flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 btn btn-primary py-4 text-lg font-semibold flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
               >
-                <ShoppingBag className="w-5 h-5" />
-                <span>{product.stock <= 0 ? 'Stok Habis' : 'Beli Sekarang'}</span>
+                <MessageCircle className="w-5 h-5" />
+                <span>{product.stock <= 0 ? 'Stok Habis' : 'Pesan via WhatsApp'}</span>
               </button>
+            </div>
+
+            {/* WhatsApp Info */}
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <p className="text-sm text-green-800">
+                📱 Untuk pemesanan bisa hubungi WhatsApp: <span className="font-semibold">089647758245</span>
+              </p>
             </div>
           </div>
         </div>

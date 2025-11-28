@@ -1,6 +1,8 @@
+// src/components/auth/LoginForm.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Mail, Lock, User, Eye, EyeOff, Loader } from 'lucide-react';
 import { APP_NAME } from '../../utils/constants';
 import logo from '../../assets/logo.png';
@@ -8,6 +10,7 @@ import logo from '../../assets/logo.png';
 const LoginForm = ({ role }) => {
   const navigate = useNavigate();
   const { signIn, signUp } = useAuth();
+  const { showToast } = useToast();
   
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -39,12 +42,16 @@ const LoginForm = ({ role }) => {
         const { error } = await signIn(formData.email, formData.password);
         if (error) throw error;
         
+        showToast('✅ Login berhasil! Selamat datang kembali', 'success');
+        
         // Navigate based on role
-        if (role === 'admin') {
-          navigate('/admin');
-        } else {
-          navigate('/home');
-        }
+        setTimeout(() => {
+          if (role === 'admin') {
+            navigate('/admin');
+          } else {
+            navigate('/home');
+          }
+        }, 500);
       } else {
         // Sign Up
         if (!formData.fullName) {
@@ -65,11 +72,12 @@ const LoginForm = ({ role }) => {
         if (error) throw error;
         
         setError('');
-        alert('Akun berhasil dibuat! Silakan cek email untuk verifikasi.');
+        showToast('✅ Akun berhasil dibuat! Silakan cek email untuk verifikasi.', 'success', 5000);
         setIsLogin(true);
       }
     } catch (err) {
       setError(err.message || 'Terjadi kesalahan. Silakan coba lagi.');
+      showToast(err.message || 'Login gagal. Periksa email dan password Anda.', 'error');
     } finally {
       setLoading(false);
     }
@@ -79,7 +87,6 @@ const LoginForm = ({ role }) => {
     <div className="p-8">
       {/* Header dengan Logo */}
       <div className="text-center mb-8">
-        {/* Logo - Full tanpa circle */}
         <div className="w-24 h-24 mx-auto mb-4 flex items-center justify-center">
           <img 
             src={logo} 
@@ -219,7 +226,7 @@ const LoginForm = ({ role }) => {
             </p>
           </div>
 
-          {/* Guest Option - Hanya muncul saat login dan bukan admin */}
+          {/* Guest Option */}
           {isLogin && (
             <div className="mt-4 text-center">
               <button

@@ -2,20 +2,22 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import ProductForm from '../../components/admin/ProductForm';
 import { createProduct } from '../../services/productService';
+import { useToast } from '../../contexts/ToastContext';
 
 const CreateProductPage = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const handleSubmit = async (productData) => {
     const { data, error } = await createProduct(productData);
     
     if (error) {
-      alert('Gagal membuat produk: ' + error.message);
+      showToast('Gagal membuat produk: ' + error.message, 'error');
       return;
     }
 
-    alert('Produk berhasil dibuat!');
-    navigate('/admin');
+    showToast('✅ Produk berhasil dibuat!', 'success');
+    setTimeout(() => navigate('/admin'), 1000);
   };
 
   return (

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, Upload, Loader, Image as ImageIcon } from 'lucide-react';
-import { SIZES, MATERIALS, PATTERNS, COLORS } from '../../utils/constants';
+import { Plus, X, Upload, Loader } from 'lucide-react';
+import { SIZES, MATERIALS, PATTERNS } from '../../utils/constants';
 import { generateSKU } from '../../utils/helpers';
 import { supabase } from '../../config/api';
+import { useToast } from '../../contexts/ToastContext';
 
 const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) => {
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -17,14 +19,12 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
     sku: '',
     image_url: '',
     sizes: [],
-    colors: [],
     material: '',
     pattern: '',
     is_featured: false,
     is_available: true,
   });
 
-  // Fetch categories from database
   useEffect(() => {
     const fetchCategories = async () => {
       const { data, error } = await supabase
@@ -50,7 +50,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
         price: initialData.price?.toString() || '',
         stock: initialData.stock?.toString() || '',
         sizes: initialData.sizes || [],
-        colors: initialData.colors || [],
       });
     } else {
       const sku = generateSKU('BAT', 'NEW');
@@ -67,22 +66,21 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
   };
 
   const handleCategoryChange = (e) => {
-  const categoryId = e.target.value;
-  const category = categories.find(c => c.id === categoryId);
-  
-  // Generate SKU dengan fallback
-  const categorySlug = category?.slug || 'bat';
-  const newSKU = generateSKU(
-    categorySlug.substring(0, 3).toUpperCase(), 
-    formData.name || 'NEW'
-  );
-  
-  setFormData({
-    ...formData,
-    category_id: categoryId,
-    sku: newSKU,
-  });
-};
+    const categoryId = e.target.value;
+    const category = categories.find(c => c.id === categoryId);
+    
+    const categorySlug = category?.slug || 'bat';
+    const newSKU = generateSKU(
+      categorySlug.substring(0, 3).toUpperCase(), 
+      formData.name || 'NEW'
+    );
+    
+    setFormData({
+      ...formData,
+      category_id: categoryId,
+      sku: newSKU,
+    });
+  };
 
   const toggleSize = (size) => {
     const sizes = formData.sizes.includes(size)
@@ -91,41 +89,30 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
     setFormData({ ...formData, sizes });
   };
 
-  const toggleColor = (color) => {
-    const colors = formData.colors.includes(color)
-      ? formData.colors.filter(c => c !== color)
-      : [...formData.colors, color];
-    setFormData({ ...formData, colors });
-  };
-
-  // Upload image to Supabase Storage
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
     if (!allowedTypes.includes(file.type)) {
-      alert('Format file tidak didukung. Gunakan JPG, PNG, atau WEBP');
+      showToast('Format file tidak didukung. Gunakan JPG, PNG, atau WEBP', 'error');
       return;
     }
 
     if (file.size > maxSize) {
-      alert('Ukuran file maksimal 5MB');
+      showToast('Ukuran file maksimal 5MB', 'error');
       return;
     }
 
     try {
       setUploading(true);
 
-      // Generate unique filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `products/${fileName}`;
 
-      // Upload to Supabase Storage
       const { data, error } = await supabase.storage
         .from('product-images')
         .upload(filePath, file, {
@@ -135,41 +122,39 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
 
       if (error) throw error;
 
-      // Get public URL
       const { data: urlData } = supabase.storage
         .from('product-images')
         .getPublicUrl(filePath);
 
       if (urlData?.publicUrl) {
         setFormData(prev => ({ ...prev, image_url: urlData.publicUrl }));
-        alert('Gambar berhasil diupload!');
+        showToast('Gambar berhasil diupload!', 'success');
       }
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Gagal mengupload gambar: ' + error.message);
+      showToast('Gagal mengupload gambar: ' + error.message, 'error');
     } finally {
       setUploading(false);
     }
   };
 
-  // Remove uploaded image
   const handleRemoveImage = async () => {
     if (!formData.image_url) return;
 
     try {
-      // Extract file path from URL
       const url = new URL(formData.image_url);
       const pathParts = url.pathname.split('/');
       const filePath = pathParts.slice(pathParts.indexOf('products')).join('/');
 
-      // Delete from storage
       await supabase.storage
         .from('product-images')
         .remove([filePath]);
 
       setFormData(prev => ({ ...prev, image_url: '' }));
+      showToast('Gambar berhasil dihapus', 'info');
     } catch (error) {
       console.error('Error removing image:', error);
+      showToast('Gagal menghapus gambar', 'error');
     }
   };
 
@@ -178,7 +163,7 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
     setLoading(true);
 
     if (!formData.category_id) {
-      alert('Kategori harus dipilih');
+      showToast('Kategori harus dipilih', 'warning');
       setLoading(false);
       return;
     }
@@ -201,7 +186,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
         <h3 className="text-lg font-semibold mb-4">Informasi Dasar</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Product Name */}
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Nama Produk <span className="text-red-500">*</span>
@@ -217,7 +201,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
             />
           </div>
 
-          {/* SKU */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               SKU <span className="text-red-500">*</span>
@@ -234,7 +217,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
             <p className="text-xs text-gray-500 mt-1">Kode unik produk</p>
           </div>
 
-          {/* Category */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Kategori <span className="text-red-500">*</span>
@@ -255,7 +237,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
             </select>
           </div>
 
-          {/* Description */}
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Deskripsi <span className="text-red-500">*</span>
@@ -278,7 +259,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
         <h3 className="text-lg font-semibold mb-4">Harga & Stok</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Price */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Harga (Rp) <span className="text-red-500">*</span>
@@ -296,7 +276,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
             />
           </div>
 
-          {/* Stock */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Stok <span className="text-red-500">*</span>
@@ -320,7 +299,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
         <h3 className="text-lg font-semibold mb-4">Detail Produk</h3>
         
         <div className="space-y-4">
-          {/* Material */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Material
@@ -338,7 +316,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
             </select>
           </div>
 
-          {/* Pattern */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Motif Batik
@@ -356,7 +333,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
             </select>
           </div>
 
-          {/* Sizes */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Ukuran Tersedia
@@ -378,35 +354,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
               ))}
             </div>
           </div>
-
-          {/* Colors */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Warna Tersedia
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {COLORS.map(color => (
-                <button
-                  key={color.name}
-                  type="button"
-                  onClick={() => toggleColor(color.name)}
-                  className={`px-4 py-2 rounded-lg border-2 font-medium transition-all ${
-                    formData.colors.includes(color.name)
-                      ? 'border-amber-700 bg-amber-700 text-white'
-                      : 'border-gray-300 hover:border-amber-700'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <div
-                      className="w-4 h-4 rounded-full border"
-                      style={{ backgroundColor: color.hex }}
-                    />
-                    <span>{color.name}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
@@ -415,7 +362,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
         <h3 className="text-lg font-semibold mb-4">Gambar Produk</h3>
         
         <div className="space-y-4">
-          {/* Upload Button */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Upload Gambar <span className="text-red-500">*</span>
@@ -479,7 +425,6 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
             </p>
           </div>
 
-          {/* Manual URL Input (Optional) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Atau Masukkan URL Gambar (Opsional)

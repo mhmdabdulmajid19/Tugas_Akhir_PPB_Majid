@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Package, Plus, ShoppingBag, TrendingUp, Edit, Trash2, Eye } from 'lucide-react';
 import { getProducts, deleteProduct } from '../../services/productService';
 import { formatCurrency, formatDateTime } from '../../utils/helpers';
+import { useToast } from '../../contexts/ToastContext';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -39,14 +41,15 @@ const AdminDashboard = () => {
   };
 
   const handleDelete = async (id, name) => {
-    if (!confirm(`Yakin ingin menghapus produk "${name}"?`)) return;
+    // Use browser's confirm for now (will create custom modal later if needed)
+    if (!window.confirm(`Yakin ingin menghapus produk "${name}"?`)) return;
     
     const { error } = await deleteProduct(id);
     if (!error) {
-      alert('Produk berhasil dihapus!');
+      showToast('✅ Produk berhasil dihapus!', 'success');
       fetchProducts();
     } else {
-      alert('Gagal menghapus produk: ' + error.message);
+      showToast('Gagal menghapus produk: ' + error.message, 'error');
     }
   };
 

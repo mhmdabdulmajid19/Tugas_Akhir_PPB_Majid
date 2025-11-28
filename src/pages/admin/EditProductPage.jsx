@@ -3,10 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader } from 'lucide-react';
 import ProductForm from '../../components/admin/ProductForm';
 import { getProductById, updateProduct } from '../../services/productService';
+import { useToast } from '../../contexts/ToastContext';
 
 const EditProductPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -17,25 +19,25 @@ const EditProductPage = () => {
       if (data) {
         setProduct(data);
       } else {
-        alert('Produk tidak ditemukan');
+        showToast('Produk tidak ditemukan', 'error');
         navigate('/admin');
       }
       setLoading(false);
     };
 
     fetchProduct();
-  }, [id, navigate]);
+  }, [id, navigate, showToast]);
 
   const handleSubmit = async (productData) => {
     const { data, error } = await updateProduct(id, productData);
     
     if (error) {
-      alert('Gagal mengupdate produk: ' + error.message);
+      showToast('Gagal mengupdate produk: ' + error.message, 'error');
       return;
     }
 
-    alert('Produk berhasil diupdate!');
-    navigate('/admin');
+    showToast('✅ Produk berhasil diupdate!', 'success');
+    setTimeout(() => navigate('/admin'), 1000);
   };
 
   if (loading) {

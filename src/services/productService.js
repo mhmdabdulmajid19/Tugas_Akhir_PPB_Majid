@@ -150,44 +150,72 @@ export const createProduct = async (productData) => {
 
 /**
  * Update product (admin only)
+ * CRITICAL: Clean the updates object to remove any nested objects
  * @param {string} id Product ID
  * @param {Object} updates Product updates
  * @returns {Promise}
  */
 export const updateProduct = async (id, updates) => {
   try {
-    // PENTING: Jangan select categories saat update
-    const { data, error } = await supabase
-      .from('products')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select() // Hanya select products, JANGAN join categories
-      .single();
-
-    if (error) throw error;
+    // CRITICAL: Remove nested objects that are NOT columns in products table
+    // This is the key to fixing the "categories column not found" error
+    const cleanUpdates = { ...updates };
     
-    // Fetch categories separately jika diperlukan
-    if (data && data.category_id) {
-      const { data: categoryData } = await supabase
-        .from('categories')
-        .select('id, name, slug, icon')
-        .eq('id', data.category_id)
-        .single();
-      
-      if (categoryData) {
-        data.categories = categoryData;
-      }
+    // Remove any nested objects that came from initial data
+    delete cleanUpdates.categories; // Remove categories object
+    delete cleanUpdates.id; // Remove id from updates
+    delete cleanUpdates.created_at; // Don't update created_at
+    
+    // Ensure category_id is a valid UUID string
+    if (cleanUpdates.category_id) {
+      cleanUpdates.category_id = cleanUpdates.category_id.toString();
     }
     
-    return { data, error: null };
+    // Add updated_at timestamp
+    cleanUpdates.updated_at = new Date().toISOString();
+
+    console.log('Clean updates being sent:', cleanUpdates); // Debug log
+
+    // Update the product
+    const { data: updatedProduct, error: updateError } = await supabase
+      .from('products')
+      .update(cleanUpdates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('Update error:', updateError);
+      throw updateError;
+    }
+
+    // Fetch complete product with categories
+    const { data: completeProduct, error: fetchError } = await supabase
+      .from('products')
+      .select(`
+        *,
+        categories (
+          id,
+          name,
+          slug,
+          icon
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (fetchError) {
+      console.error('Fetch error:', fetchError);
+      throw fetchError;
+    }
+
+    return { data: completeProduct, error: null };
   } catch (error) {
     console.error('Error updating product:', error);
     return { data: null, error };
   }
 };
+
 /**
  * Delete product (admin only)
  * @param {string} id Product ID
@@ -224,7 +252,7 @@ export const getProductCount = async (filters = {}) => {
       const { data: categoryData } = await supabase
         .from('categories')
         .select('id')
-        .eq('slug', filters.category_slug)
+        .eq('slug', params.category_slug)
         .single();
       
       if (categoryData) {
