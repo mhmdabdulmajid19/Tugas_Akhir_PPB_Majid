@@ -1,15 +1,83 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, Plus, ShoppingBag, TrendingUp, Edit, Trash2, Eye } from 'lucide-react';
+import { Package, Plus, ShoppingBag, TrendingUp, Edit, Trash2, Eye, AlertTriangle, X } from 'lucide-react';
 import { getProducts, deleteProduct } from '../../services/productService';
-import { formatCurrency, formatDateTime } from '../../utils/helpers';
+import { formatCurrency } from '../../utils/helpers';
 import { useToast } from '../../contexts/ToastContext';
+
+// Modern Confirm Modal Component
+const ConfirmModal = ({ isOpen, onClose, onConfirm, productName }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity backdrop-blur-sm"
+        onClick={onClose}
+      ></div>
+      
+      {/* Modal */}
+      <div className="flex min-h-full items-center justify-center p-4">
+        <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all animate-slide-in">
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          {/* Icon */}
+          <div className="pt-8 pb-4 px-6">
+            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100">
+              <AlertTriangle className="h-8 w-8 text-red-600" />
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="px-6 pb-6 text-center">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Hapus Produk?
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Apakah Anda yakin ingin menghapus produk{' '}
+              <span className="font-semibold text-gray-900">"{productName}"</span>?
+              <br />
+              <span className="text-red-600 text-sm">Tindakan ini tidak dapat dibatalkan.</span>
+            </p>
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={onClose}
+                className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  onConfirm();
+                  onClose();
+                }}
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-xl transition-all shadow-lg hover:shadow-xl"
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, product: null });
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalStock: 0,
@@ -26,7 +94,6 @@ const AdminDashboard = () => {
     if (data) {
       setProducts(data);
       
-      // Calculate stats
       const totalProducts = data.length;
       const totalStock = data.reduce((sum, p) => sum + (p.stock || 0), 0);
       const totalValue = data.reduce((sum, p) => sum + (p.price * p.stock || 0), 0);
@@ -40,16 +107,19 @@ const AdminDashboard = () => {
     setLoading(false);
   };
 
-  const handleDelete = async (id, name) => {
-    // Use browser's confirm for now (will create custom modal later if needed)
-    if (!window.confirm(`Yakin ingin menghapus produk "${name}"?`)) return;
+  const handleDeleteClick = (product) => {
+    setDeleteModal({ isOpen: true, product });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.product) return;
     
-    const { error } = await deleteProduct(id);
+    const { error } = await deleteProduct(deleteModal.product.id);
     if (!error) {
-      showToast('✅ Produk berhasil dihapus!', 'success');
+      showToast(`✅ Produk "${deleteModal.product.name}" berhasil dihapus!`, 'success');
       fetchProducts();
     } else {
-      showToast('Gagal menghapus produk: ' + error.message, 'error');
+      showToast('❌ Gagal menghapus produk: ' + error.message, 'error');
     }
   };
 
@@ -76,7 +146,15 @@ const AdminDashboard = () => {
 
   return (
     <div>
-      {/* Header - Responsive */}
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, product: null })}
+        onConfirm={handleDeleteConfirm}
+        productName={deleteModal.product?.name || ''}
+      />
+
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard Admin</h1>
@@ -98,7 +176,7 @@ const AdminDashboard = () => {
         {statsCards.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <div key={index} className="bg-white rounded-xl shadow-sm p-6">
+            <div key={index} className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-4">
                 <div className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-lg flex items-center justify-center`}>
                   <Icon className="w-6 h-6 text-white" />
@@ -111,7 +189,7 @@ const AdminDashboard = () => {
         })}
       </div>
 
-      {/* Products Table - Responsive */}
+      {/* Products Table */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <div className="p-4 sm:p-6 border-b">
           <h2 className="text-lg sm:text-xl font-bold">Semua Produk</h2>
@@ -139,7 +217,6 @@ const AdminDashboard = () => {
               {products.map((product) => (
                 <div key={product.id} className="p-4 hover:bg-gray-50">
                   <div className="flex gap-4">
-                    {/* Product Image */}
                     <div className="w-20 h-20 rounded-lg bg-gray-100 flex-shrink-0 overflow-hidden">
                       {product.image_url ? (
                         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
@@ -150,7 +227,6 @@ const AdminDashboard = () => {
                       )}
                     </div>
 
-                    {/* Product Info */}
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-gray-900 truncate">{product.name}</h3>
                       <p className="text-sm text-gray-500 mb-2">SKU: {product.sku}</p>
@@ -184,7 +260,6 @@ const AdminDashboard = () => {
                         </div>
                       </div>
 
-                      {/* Action Buttons */}
                       <div className="flex items-center gap-2 mt-3">
                         <button
                           onClick={() => navigate(`/product/${product.id}`)}
@@ -201,7 +276,7 @@ const AdminDashboard = () => {
                           <span>Edit</span>
                         </button>
                         <button
-                          onClick={() => handleDelete(product.id, product.name)}
+                          onClick={() => handleDeleteClick(product)}
                           className="px-3 py-2 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -303,7 +378,7 @@ const AdminDashboard = () => {
                             <Edit className="w-5 h-5" />
                           </button>
                           <button
-                            onClick={() => handleDelete(product.id, product.name)}
+                            onClick={() => handleDeleteClick(product)}
                             className="text-red-600 hover:text-red-900"
                             title="Hapus"
                           >

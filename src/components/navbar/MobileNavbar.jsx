@@ -1,47 +1,89 @@
-// src/components/navbar/MobileNavbar.jsx
 import { useLocation, Link } from 'react-router-dom';
-import { Home, ShoppingBag, Heart, User } from 'lucide-react';
+import { Home, ShoppingBag, Heart, User, Settings } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 const MobileNavbar = () => {
   const location = useLocation();
+  const { isAdmin } = useAuth();
 
-  const navItems = [
-    { 
-      path: '/home', 
-      icon: Home, 
-      label: 'Home',
-      activeColor: 'text-amber-700',
-      inactiveColor: 'text-gray-400'
-    },
-    { 
-      path: '/mens-clothing', 
-      icon: ShoppingBag, 
-      label: 'Pria',
-      activeColor: 'text-blue-700',
-      inactiveColor: 'text-gray-400'
-    },
-    { 
-      path: '/womens-clothing', 
-      icon: ShoppingBag, 
-      label: 'Wanita',
-      activeColor: 'text-pink-700',
-      inactiveColor: 'text-gray-400'
-    },
-    { 
-      path: '/favorites', 
-      icon: Heart, 
-      label: 'Favorit',
-      activeColor: 'text-red-700',
-      inactiveColor: 'text-gray-400'
-    },
-    { 
-      path: '/profile', 
-      icon: User, 
-      label: 'Profil',
-      activeColor: 'text-purple-700',
-      inactiveColor: 'text-gray-400'
-    },
-  ];
+  // Navigation items berdasarkan role
+  const navItems = isAdmin 
+    ? [
+        // Admin Navigation: Favorit diganti Profile + tambah Admin
+        { 
+          path: '/home', 
+          icon: Home, 
+          label: 'Home',
+          activeColor: 'text-amber-700',
+          inactiveColor: 'text-gray-400'
+        },
+        { 
+          path: '/mens-clothing', 
+          icon: ShoppingBag, 
+          label: 'Pria',
+          activeColor: 'text-blue-700',
+          inactiveColor: 'text-gray-400'
+        },
+        { 
+          path: '/womens-clothing', 
+          icon: ShoppingBag, 
+          label: 'Wanita',
+          activeColor: 'text-pink-700',
+          inactiveColor: 'text-gray-400'
+        },
+        { 
+          path: '/profile', 
+          icon: User, 
+          label: 'Profil',
+          activeColor: 'text-indigo-700',
+          inactiveColor: 'text-gray-400'
+        },
+        { 
+          path: '/admin', 
+          icon: Settings, 
+          label: 'Admin',
+          activeColor: 'text-purple-700',
+          inactiveColor: 'text-gray-400'
+        }
+      ]
+    : [
+        // User Navigation: Dengan Favorit
+        { 
+          path: '/home', 
+          icon: Home, 
+          label: 'Home',
+          activeColor: 'text-amber-700',
+          inactiveColor: 'text-gray-400'
+        },
+        { 
+          path: '/mens-clothing', 
+          icon: ShoppingBag, 
+          label: 'Pria',
+          activeColor: 'text-blue-700',
+          inactiveColor: 'text-gray-400'
+        },
+        { 
+          path: '/womens-clothing', 
+          icon: ShoppingBag, 
+          label: 'Wanita',
+          activeColor: 'text-pink-700',
+          inactiveColor: 'text-gray-400'
+        },
+        { 
+          path: '/favorites', 
+          icon: Heart, 
+          label: 'Favorit',
+          activeColor: 'text-red-700',
+          inactiveColor: 'text-gray-400'
+        },
+        { 
+          path: '/profile', 
+          icon: User, 
+          label: 'Profil',
+          activeColor: 'text-purple-700',
+          inactiveColor: 'text-gray-400'
+        }
+      ];
 
   const isActive = (path) => {
     return location.pathname === path || location.pathname.startsWith(path + '/');

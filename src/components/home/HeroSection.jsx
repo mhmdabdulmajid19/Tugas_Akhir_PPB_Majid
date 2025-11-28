@@ -1,4 +1,5 @@
 import { ShoppingBag, Sparkles } from 'lucide-react';
+import logo from '../../assets/logo.png';
 
 const HeroSection = () => {
   const scrollToSection = (sectionId) => {
@@ -77,32 +78,43 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Right Content - Image Placeholder */}
+          {/* Right Content - Brand Card dengan Logo */}
           <div className="relative">
-            <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl">
-              {/* Gradient Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-batik-brown/20 to-batik-gold/20 flex items-center justify-center">
-                <div className="text-center space-y-4">
-                  <div className="text-8xl">👔</div>
-                  <p className="text-2xl font-bold text-batik-brown">
+            <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-amber-100 to-orange-100">
+              {/* Brand Card Content */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-8 space-y-6">
+                {/* Logo */}
+                <div className="w-48 h-48 flex items-center justify-center">
+                  <img 
+                    src={logo} 
+                    alt="AlMajid Batik" 
+                    className="w-full h-full object-contain drop-shadow-2xl"
+                  />
+                </div>
+
+                {/* Brand Name */}
+                <div className="text-center space-y-2">
+                  <h2 className="text-3xl font-bold text-batik-brown">
                     AlMajid Batik
-                  </p>
-                  <p className="text-gray-600">
+                  </h2>
+                  <p className="text-lg text-gray-700 font-medium">
                     Warisan Budaya Indonesia
                   </p>
                 </div>
+
+      
               </div>
             </div>
 
-            {/* Floating Cards */}
-            <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg animate-float">
+            {/* Floating Animation Elements */}
+            <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg animate-float hidden md:block">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-batik-brown to-batik-gold rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold">A</span>
+                  <span className="text-white font-bold">✓</span>
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-gray-800">Premium Quality</div>
-                  <div className="text-xs text-gray-600">100% Original</div>
+                  <div className="text-sm font-bold text-gray-800">Terpercaya</div>
+                  <div className="text-xs text-gray-600">Sejak 2020</div>
                 </div>
               </div>
             </div>
