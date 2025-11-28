@@ -24,7 +24,7 @@ const HeroSection = () => {
             <div className="inline-flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-md">
               <Sparkles className="w-4 h-4 text-batik-gold" />
               <span className="text-sm font-medium text-gray-700">
-                Koleksi Batik Terbaru 2024
+                Koleksi Batik Terbaru 2025
               </span>
             </div>
 

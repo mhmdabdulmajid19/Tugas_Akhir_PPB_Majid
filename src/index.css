@@ -23,10 +23,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f9fafb;
+  background-color: #FAF6F1; /* batik-cream-light */
 }
 
-/* Custom Utility Classes */
+/* Custom Utility Classes dengan color palette baru */
 @layer components {
   /* Buttons */
   .btn {
@@ -34,16 +34,21 @@ body {
   }
 
   .btn-primary {
-    @apply bg-gradient-to-r from-amber-700 to-amber-600 text-white hover:from-amber-800 hover:to-amber-700 shadow-md hover:shadow-lg active:scale-95;
+    @apply bg-gradient-to-r from-batik-brown to-batik-gold text-white shadow-md hover:shadow-lg active:scale-95;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-primary:hover {
+    background-image: linear-gradient(to right, #7D4F1E, #E8C9A0);
   }
 
   .btn-secondary {
-    @apply bg-white text-amber-700 border-2 border-amber-700 hover:bg-amber-50 shadow-sm hover:shadow-md active:scale-95;
+    @apply bg-white text-batik-brown border-2 border-batik-brown hover:bg-batik-cream shadow-sm hover:shadow-md active:scale-95;
   }
 
   /* Input Fields */
   .input {
-    @apply w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-amber-700 focus:ring-2 focus:ring-amber-700/20 transition-all outline-none;
+    @apply w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-batik-gold focus:ring-2 focus:ring-batik-gold/20 transition-all outline-none bg-white;
   }
 
   /* Cards */
@@ -57,11 +62,11 @@ body {
   }
 
   .bottom-nav-item {
-    @apply flex-1 flex flex-col items-center justify-center py-3 text-gray-600 hover:text-amber-700 transition-colors;
+    @apply flex-1 flex flex-col items-center justify-center py-3 text-gray-600 hover:text-batik-brown transition-colors;
   }
 
   .bottom-nav-item.active {
-    @apply text-amber-700 font-semibold;
+    @apply text-batik-brown font-semibold;
   }
 }
 
@@ -162,29 +167,29 @@ body {
   padding-top: env(safe-area-inset-top);
 }
 
-/* Scrollbar Styling */
+/* Scrollbar Styling dengan warna logo */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #FAF6F1; /* batik-cream-light */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #D4A574; /* batik-gold */
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #B8906A; /* batik-gold-dark */
 }
 
-/* Loading Spinner */
+/* Loading Spinner dengan warna logo */
 .spinner {
-  border: 4px solid rgba(139, 69, 19, 0.1);
-  border-top: 4px solid #8B4513;
+  border: 4px solid rgba(92, 51, 23, 0.1); /* batik-brown with opacity */
+  border-top: 4px solid #5C3317; /* batik-brown */
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -210,15 +215,15 @@ body {
   overflow: hidden;
 }
 
-/* Focus Visible */
+/* Focus Visible dengan warna logo */
 *:focus-visible {
-  outline: 2px solid #8B4513;
+  outline: 2px solid #D4A574; /* batik-gold */
   outline-offset: 2px;
 }
 
-/* Selection */
+/* Selection dengan warna logo */
 ::selection {
-  background-color: #D4AF37;
+  background-color: #D4A574; /* batik-gold */
   color: white;
 }
 

@@ -156,6 +156,7 @@ export const createProduct = async (productData) => {
  */
 export const updateProduct = async (id, updates) => {
   try {
+    // PENTING: Jangan select categories saat update
     const { data, error } = await supabase
       .from('products')
       .update({
@@ -163,17 +164,30 @@ export const updateProduct = async (id, updates) => {
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
-      .select()
+      .select() // Hanya select products, JANGAN join categories
       .single();
 
     if (error) throw error;
+    
+    // Fetch categories separately jika diperlukan
+    if (data && data.category_id) {
+      const { data: categoryData } = await supabase
+        .from('categories')
+        .select('id, name, slug, icon')
+        .eq('id', data.category_id)
+        .single();
+      
+      if (categoryData) {
+        data.categories = categoryData;
+      }
+    }
+    
     return { data, error: null };
   } catch (error) {
     console.error('Error updating product:', error);
     return { data: null, error };
   }
 };
-
 /**
  * Delete product (admin only)
  * @param {string} id Product ID

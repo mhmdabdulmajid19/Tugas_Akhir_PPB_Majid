@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Mail, Lock, User, Eye, EyeOff, Loader } from 'lucide-react';
+import { APP_NAME } from '../../utils/constants';
+import logo from '../../assets/logo.png';
 
 const LoginForm = ({ role }) => {
   const navigate = useNavigate();
@@ -75,8 +77,16 @@ const LoginForm = ({ role }) => {
 
   return (
     <div className="p-8">
-      {/* Header */}
+      {/* Header dengan Logo */}
       <div className="text-center mb-8">
+        {/* Logo - Full tanpa circle */}
+        <div className="w-24 h-24 mx-auto mb-4 flex items-center justify-center">
+          <img 
+            src={logo} 
+            alt={APP_NAME} 
+            className="w-full h-full object-contain drop-shadow-lg"
+          />
+        </div>
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
           {isLogin ? 'Masuk' : 'Daftar'} sebagai{' '}
           <span className="text-batik-brown capitalize">{role}</span>

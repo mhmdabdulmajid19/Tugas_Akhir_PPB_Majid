@@ -67,19 +67,22 @@ const ProductForm = ({ initialData, onSubmit, submitLabel = 'Simpan Produk' }) =
   };
 
   const handleCategoryChange = (e) => {
-    const categoryId = e.target.value;
-    const category = categories.find(c => c.id === categoryId);
-    const newSKU = generateSKU(
-      category?.slug.substring(0, 3).toUpperCase() || 'BAT', 
-      formData.name || 'NEW'
-    );
-    
-    setFormData({
-      ...formData,
-      category_id: categoryId,
-      sku: newSKU,
-    });
-  };
+  const categoryId = e.target.value;
+  const category = categories.find(c => c.id === categoryId);
+  
+  // Generate SKU dengan fallback
+  const categorySlug = category?.slug || 'bat';
+  const newSKU = generateSKU(
+    categorySlug.substring(0, 3).toUpperCase(), 
+    formData.name || 'NEW'
+  );
+  
+  setFormData({
+    ...formData,
+    category_id: categoryId,
+    sku: newSKU,
+  });
+};
 
   const toggleSize = (size) => {
     const sizes = formData.sizes.includes(size)

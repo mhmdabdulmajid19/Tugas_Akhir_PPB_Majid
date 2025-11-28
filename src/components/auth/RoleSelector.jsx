@@ -33,11 +33,12 @@ const RoleSelector = ({ onSelectRole }) => {
     <div className="p-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+        {/* Logo diperbesar TANPA circle background - hanya logo */}
+        <div className="w-40 h-40 mx-auto mb-6 flex items-center justify-center">
           <img 
             src={logo} 
             alt={APP_NAME} 
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain drop-shadow-lg"
           />
         </div>
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -66,7 +67,7 @@ const RoleSelector = ({ onSelectRole }) => {
                 
                 {/* Content */}
                 <div className="flex-1 text-left">
-                  <h3 className="text-lg font-bold text-gray-800 mb-1">
+                  <h3 className="text-lg font-bold text-gray-800 mb-1 group-hover:text-batik-brown transition-colors">
                     {role.title}
                   </h3>
                   <p className="text-sm text-gray-600">

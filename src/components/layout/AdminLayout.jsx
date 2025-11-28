@@ -1,7 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, Plus, Home, ArrowLeft } from 'lucide-react';
-import { APP_NAME } from '../../utils/constants';
-import logo from '../../assets/logo.png';
+import logoDashboard from '../../assets/logo_dashboard.png';
 
 const AdminLayout = () => {
   const location = useLocation();
@@ -34,7 +33,7 @@ const AdminLayout = () => {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo */}
+            {/* Logo Dashboard - Menggunakan logo_dashboard.png */}
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => navigate('/home')}
@@ -44,20 +43,16 @@ const AdminLayout = () => {
                 <span className="text-sm font-medium">Kembali ke Home</span>
               </button>
               <div className="h-8 w-px bg-gray-300"></div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
+                {/* Logo Dashboard dengan ukuran yang sesuai */}
                 <img 
-                  src={logo} 
-                  alt={APP_NAME} 
-                  className="w-8 h-8 object-contain"
+                  src={logoDashboard} 
+                  alt="AlMajid Batik Dashboard" 
+                  className="h-10 w-auto object-contain"
                 />
-                <div>
-                  <span className="text-lg font-bold text-batik-brown">
-                    {APP_NAME}
-                  </span>
-                  <span className="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-semibold">
-                    ADMIN
-                  </span>
-                </div>
+                <span className="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-semibold">
+                  ADMIN
+                </span>
               </div>
             </div>
 
