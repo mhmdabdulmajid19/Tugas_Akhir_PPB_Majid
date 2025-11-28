@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, Plus, Home, ArrowLeft } from 'lucide-react';
 import { APP_NAME } from '../../utils/constants';
+import logo from '../../assets/logo.png';
 
 const AdminLayout = () => {
   const location = useLocation();
@@ -44,9 +45,11 @@ const AdminLayout = () => {
               </button>
               <div className="h-8 w-px bg-gray-300"></div>
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-batik-brown to-batik-gold rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">A</span>
-                </div>
+                <img 
+                  src={logo} 
+                  alt={APP_NAME} 
+                  className="w-8 h-8 object-contain"
+                />
                 <div>
                   <span className="text-lg font-bold text-batik-brown">
                     {APP_NAME}

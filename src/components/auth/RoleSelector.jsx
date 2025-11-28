@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, User } from 'lucide-react';
 import { APP_NAME } from '../../utils/constants';
+import logo from '../../assets/logo.png';
 
 const RoleSelector = ({ onSelectRole }) => {
   const navigate = useNavigate();
@@ -32,8 +33,12 @@ const RoleSelector = ({ onSelectRole }) => {
     <div className="p-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="w-20 h-20 bg-gradient-to-br from-batik-brown to-batik-gold rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
-          <span className="text-3xl font-bold text-white">A</span>
+        <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+          <img 
+            src={logo} 
+            alt={APP_NAME} 
+            className="w-full h-full object-contain"
+          />
         </div>
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
           Selamat Datang di {APP_NAME}

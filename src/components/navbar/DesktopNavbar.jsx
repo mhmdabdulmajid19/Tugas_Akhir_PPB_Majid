@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, ShoppingBag, Heart, User, Settings } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { APP_NAME } from '../../utils/constants';
+import logo from '../../assets/logo.png';
 
 const DesktopNavbar = () => {
   const location = useLocation();
@@ -24,10 +25,12 @@ const DesktopNavbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/home" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-batik-brown to-batik-gold rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">A</span>
-            </div>
+          <Link to="/home" className="flex items-center space-x-3">
+            <img 
+              src={logo} 
+              alt={APP_NAME} 
+              className="w-12 h-12 object-contain"
+            />
             <span className="text-xl font-bold text-batik-brown">
               {APP_NAME}
             </span>

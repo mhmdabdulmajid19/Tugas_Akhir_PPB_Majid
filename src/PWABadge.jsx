@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { X, Download } from 'lucide-react';
+import logo from './assets/logo.png';
 
 const PWABadge = () => {
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
@@ -41,8 +42,12 @@ const PWABadge = () => {
       <div className="bg-white rounded-xl shadow-2xl p-4 max-w-sm border-2 border-batik-brown">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-batik-brown to-batik-gold rounded-lg flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-bold text-xl">A</span>
+            <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+              <img 
+                src={logo} 
+                alt="AlMajid Batik" 
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <h3 className="font-bold text-gray-900">Install AlMajid Batik</h3>
